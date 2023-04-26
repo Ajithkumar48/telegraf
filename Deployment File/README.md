@@ -1,43 +1,14 @@
 # telegraf
 
-Shell script to  start and stop telegraf as service in Linux
+Here are the pointers for the given batch file:
 
-Prerequsites: Download telegraf linux binary x46 for installation and place the .sh files in root directory
-    
-    > /home/user/telegraf/etc/..
-    > /home/user/telegraf/usr/..
-    > /home/user/telegraf/var/..
-    > telegraf_start.sh
-    > telegraf_stop.sh
+    The script locates the source directory having "Telegraf" in folder name.
+    It uses a for loop to loop through each row in the servers.csv file.
+    It sets the variables SERVER, SSH_USER, SSH_PASS, and SSH_PORT from each row of the CSV file.
+    If no input was provided for the SSH_PORT, it sets the default port to 22.
+    It uses plink and pscp commands to copy the contents of the source directory to the destination directory on each server and execute the telegraf_start.sh  script.
+    It uses the sudo command to give permission to the destination directory and execute the telegraf_start.sh script.
+    It prints the status of the telegraf service using the systemctl command.
+    The script pauses at the end to allow the user to read the output.
 
-Place the template.conf file in /etc/telegraf/..
-
-run below command:
-
-Start CMD
-
-    > chmod +x ./telegraf_start.sh
-    > sudo ./telegraf_start.sh
-
-Stop CMD
-
-    > chmod +x ./telegraf_stop.sh
-    > sudo ./telegraf_stop.sh
-
-This script creates a new configuration file for Telegraf and sets the hostname to the hostname of the machine running the script. It then sets up a new systemd service for Telegraf using the new configuration file.
-
-Here's a breakdown of the script:
-
-    Get the working directory path.
-    Print the working directory path.
-    Get the hostname of the machine running the script.
-    Define the filenames for the template file and output file.
-    Set the new hostname to the hostname of the machine running the script.
-    Check if the template file exists. If not, exit with an error.
-    Check if the output file already exists. If so, delete it.
-    Copy the contents of the template file to the output file, replacing the P_Hostname placeholder with the new hostname.
-    Display a message indicating success.
-    Set the service name and description.
-    Create the service file.
-    Reload the systemd daemon.
-    Start the service and enable it to run at boot time.
+Additionally, the script changes the color of the terminal and suppresses the output of the plink command.
