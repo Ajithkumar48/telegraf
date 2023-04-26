@@ -2,6 +2,12 @@
 
 Place the .bat and .csv file in the same location as Telegraf Folder containing the binaries: etc, usr, var
 
+    /Telegraf/etc/..
+    /Telegraf/usr/..
+    /Telegraf/var/..
+    /*.bat
+    /*.csv
+
 Here are the pointers for the given batch file:
 
     The script locates the source directory having "Telegraf" in folder name.
