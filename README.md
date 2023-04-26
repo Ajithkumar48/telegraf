@@ -15,11 +15,11 @@ Prerequsites: Download telegraf linux binary x46 for installation and place the 
 run below command:
 
 Start CMD
-    > /home/user/telegraf/etc/..
-    > /home/user/telegraf/usr/..
+
     > chmod +x ./telegraf_start.sh
     > sudo ./telegraf_start.sh
 
 Stop CMD
+
     > chmod +x ./telegraf_stop.sh
     > sudo ./telegraf_stop.sh
