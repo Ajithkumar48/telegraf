@@ -44,7 +44,7 @@ Here's a breakdown of the script:
     Start the service and enable it to run at boot time.
     
     
-Jenkins Project + git to run script.sh
+# Jenkins Project + git to run script.sh [Simple Project]
 
     > git clone /home/vagrant/localrepo/telegraf.git
     > cd ${WORKSPACE}/telegraf/
@@ -52,8 +52,7 @@ Jenkins Project + git to run script.sh
     > sudo ./script.sh ${WORKSPACE} ${SERVER} ${SSH_USER}
     
     
-Pipeline (Jenkins)
-_______________________________________________________
+# Pipeline (Jenkins)
 
 The Jenkins file is a pipeline that deploys the telegraf service to a list of servers specified in the `server_details` parameter. 
 
