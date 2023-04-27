@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'server_details', defaultValue: '', description: 'Comma-separated list of server details in the format <server>:<user>')
+    }
+    stages {
+        stage('Init Stage') {
+            steps {
+                deleteDir()
+                script {
+                    sh "git clone /home/vagrant/localrepo/telegraf.git"
+                    dir("${WORKSPACE}/telegraf") {
+                        sh "chmod +x ./script.sh"
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy Stage') {
+            steps {
+                script {
+                    def serverList = server_details.split(',')
+                    def stepsMap = [:]
+                    for (int i = 0; i < serverList.size(); i++) {
+                        def serverDetails = serverList[i].split(':')
+                        def server = serverDetails[0]
+                        def user = serverDetails[1]
+                        stepsMap["Step ${i+1}: Deploy to ${server}"] = {
+                            dir("${WORKSPACE}/telegraf") {
+                                sh "./script.sh ${WORKSPACE} ${server} ${user}"
+                            }
+                        }
+                    }
+                    parallel stepsMap
+                }
+            }
+        }
+        
+        stage('CleanUp Stage') {
+            steps {
+                deleteDir()
+            }
+        }
+    }
+}
