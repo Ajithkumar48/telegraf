@@ -18,16 +18,11 @@ fi
 
 echo "Source folder: ${SOURCE_DIR}"
 
-# Destination Directory
-DEST_DIR="/home/${SSH_USER}/telegraf"
-
 # Loop through each row in the CSV file
 while IFS=',' read -r SERVER SSH_USER SSH_PASS SSH_PORT; do
 
-  # Set the default port to 22 if no input was provided
-  if [ -z "${SSH_PORT}" ]; then
-    SSH_PORT=22
-  fi
+  # Set the destination directory with SSH_USER
+  DEST_DIR="/home/${SSH_USER}/telegraf"
 
   echo ""
   echo "------------------------------------------------------------------------"
@@ -36,18 +31,18 @@ while IFS=',' read -r SERVER SSH_USER SSH_PASS SSH_PORT; do
   echo ""
 
   # Checking status of telegraf.service on current server
-  if plink -batch -ssh -P "${SSH_PORT}" -l "${SSH_USER}" -pw "${SSH_PASS}" "${SERVER}" "sudo systemctl is-active telegraf" | grep -q "active"; then
+  if sshpass -p "${SSH_PASS}" ssh -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl is-active telegraf>/dev/null 2>&1"; then
     echo "The telegraf service is already running on ${SERVER}, skipping this server..."
   else
     echo "Copying files to ${SERVER}..."
     echo ""
-    plink -batch -ssh -P "${SSH_PORT}" -l "${SSH_USER}" -pw "${SSH_PASS}" "${SERVER}" "mkdir -p ${DEST_DIR}" > /dev/null
-    pscp -C -r -P "${SSH_PORT}" -pw "${SSH_PASS}" "${SOURCE_DIR}"* "${SSH_USER}"@"${SERVER}":"${DEST_DIR}"
-    plink -batch -ssh -P "${SSH_PORT}" -l "${SSH_USER}" -pw "${SSH_PASS}" "${SERVER}" "sudo chmod -R 777 ${DEST_DIR} && cd ${DEST_DIR} && sudo ./telegraf_start.sh" > /dev/null
+    sshpass -p "${SSH_PASS}" ssh -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "mkdir -p ${DEST_DIR}" > /dev/null
+    scp -o StrictHostKeyChecking=no -P 22 -r "${SOURCE_DIR}"* "${SSH_USER}@${SERVER}:${DEST_DIR}"
+    sshpass -p "${SSH_PASS}" ssh -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo chmod -R 777 ${DEST_DIR} && cd ${DEST_DIR} && sudo ./telegraf_start.sh" > /dev/null
   fi
 
   echo ""
-  echo "[Status]" && plink -batch -ssh -P "${SSH_PORT}" -l "${SSH_USER}" -pw "${SSH_PASS}" "${SERVER}" "sudo systemctl status telegraf | grep -E 'Active:|Loaded:|Main PID:|CGroup:'"
+  echo "[Status]" && sshpass -p "${SSH_PASS}" ssh -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl status telegraf | grep -E 'Active:|Loaded:|Main PID:|CGroup:'"
   echo ""
 
 done < "${SEARCH_DIR}/servers.csv"
