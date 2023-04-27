@@ -10,6 +10,10 @@ pipeline {
                 script {
                     sh "git clone /home/vagrant/localrepo/telegraf.git"
                     dir("${WORKSPACE}/telegraf") {
+                        def output = sh(returnStdout: true, script: "ls script.sh")
+                                if (!output.contains("script.sh")) {
+                                    error("[ERROR] : .sh file not present in Current Directory")
+                                }
                         sh "chmod +x ./script.sh"
                     }
                 }
@@ -26,8 +30,16 @@ pipeline {
                         def server = serverDetails[0]
                         def user = serverDetails[1]
                         stepsMap["Step ${i+1}: Deploy to ${server}"] = {
+                        try {
                             dir("${WORKSPACE}/telegraf") {
                                 sh "./script.sh ${WORKSPACE} ${server} ${user}"
+                                def output = sh(returnStdout: true, script: "systemctl status telegraf")
+                                    if (!output.contains("Active: active (running)")) {
+                                        error("FAILURE - service not running on ${server}")
+                                    }
+                            }
+                            } catch (Exception e) {
+                                println("[Error] Step ${i}: ${e.getMessage()}")
                             }
                         }
                     }
