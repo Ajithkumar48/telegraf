@@ -42,3 +42,11 @@ Here's a breakdown of the script:
     Create the service file.
     Reload the systemd daemon.
     Start the service and enable it to run at boot time.
+    
+    
+Jenkins Project + git to run script.sh
+
+    > git clone /home/vagrant/localrepo/telegraf.git
+    > cd ${WORKSPACE}/telegraf/
+    > chmod +x ./script.sh
+    > sudo ./script.sh ${WORKSPACE} ${SERVER} ${SSH_USER}
