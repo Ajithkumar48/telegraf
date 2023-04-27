@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Locate Source Directory Having "Telegraf" in Folder Name
-SEARCH_DIR=$(dirname "${BASH_SOURCE[0]}")
+SEARCH_DIR="$(dirname "${BASH_SOURCE[0]}")/"
 FOLDER_NAME="telegraf"
 
 for dir in "${SEARCH_DIR}"*"${FOLDER_NAME}"*/; do
