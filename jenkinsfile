@@ -1,57 +1,59 @@
 pipeline {
-    agent any
-    parameters {
-        string(name: 'server_details', defaultValue: '', description: 'Comma-separated list of server details in the format <server>:<user>')
+  agent any
+  parameters {
+    string(name: 'server_details', defaultValue: '', description: 'Comma-separated list of server details in the format <server>:<user>')
+  }
+  stages {
+    stage('Init Stage') {
+      steps {
+        deleteDir()
+        script {
+          sh "git clone /home/vagrant/localrepo/telegraf.git"
+          dir("${WORKSPACE}/telegraf") {
+            def output = sh(returnStdout: true, script: "ls script.sh")
+            if (!output.contains("script.sh")) {
+              error("[ERROR] : .sh file not present in Current Directory")
+            }
+            sh "chmod +x ./script.sh"
+          }
+        }
+      }
     }
-    stages {
-        stage('Init Stage') {
-            steps {
-                deleteDir()
-                script {
-                    sh "git clone /home/vagrant/localrepo/telegraf.git"
-                    dir("${WORKSPACE}/telegraf") {
-                        def output = sh(returnStdout: true, script: "ls script.sh")
-                                if (!output.contains("script.sh")) {
-                                    error("[ERROR] : .sh file not present in Current Directory")
-                                }
-                        sh "chmod +x ./script.sh"
+
+    stage('Deploy Stage') {
+      steps {
+        timeout(time: 1, unit: 'MINUTES') {
+          script {
+            def serverList = server_details.split(',')
+            def stepsMap = [: ]
+            for (int i = 0; i < serverList.size(); i++) {
+              def serverDetails = serverList[i].split(':')
+              def server = serverDetails[0]
+              def user = serverDetails[1]
+              stepsMap["Node ${i+1}: ${server}"] = {
+                try {
+                  dir("${WORKSPACE}/telegraf") {
+                    sh "./script.sh ${WORKSPACE} ${server} ${user}"
+                    def output = sh(returnStdout: true, script: "systemctl status telegraf")
+                    if (!output.contains("Active: active (running)")) {
+                      error("FAILURE - service not running on ${server}")
                     }
+                  }
+                } catch (Exception e) {
+                  println("[Error] Node ${i}: ${e.getMessage()}")
                 }
+              }
             }
+            parallel stepsMap
+          }
         }
-        
-        stage('Deploy Stage') {
-            steps {
-                script {
-                    def serverList = server_details.split(',')
-                    def stepsMap = [:]
-                    for (int i = 0; i < serverList.size(); i++) {
-                        def serverDetails = serverList[i].split(':')
-                        def server = serverDetails[0]
-                        def user = serverDetails[1]
-                        stepsMap["Step ${i+1}: Deploy to ${server}"] = {
-                        try {
-                            dir("${WORKSPACE}/telegraf") {
-                                sh "./script.sh ${WORKSPACE} ${server} ${user}"
-                                def output = sh(returnStdout: true, script: "systemctl status telegraf")
-                                    if (!output.contains("Active: active (running)")) {
-                                        error("FAILURE - service not running on ${server}")
-                                    }
-                            }
-                            } catch (Exception e) {
-                                println("[Error] Step ${i}: ${e.getMessage()}")
-                            }
-                        }
-                    }
-                    parallel stepsMap
-                }
-            }
-        }
-        
-        stage('CleanUp Stage') {
-            steps {
-                deleteDir()
-            }
-        }
+      }
     }
+
+    stage('CleanUp Stage') {
+      steps {
+        deleteDir()
+      }
+    }
+  }
 }
