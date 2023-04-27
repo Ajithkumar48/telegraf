@@ -9,6 +9,7 @@ Prerequsites: Download telegraf linux binary x46 for installation and place the 
     > /home/user/telegraf/var/..
     > telegraf_start.sh
     > telegraf_stop.sh
+    > script.sh
 
 Place the template.conf file in /etc/telegraf/..
 
