@@ -13,8 +13,22 @@ HOSTNAME=$(hostname)
 TEMPLATE_FILE="$WORKING_DIRECTORY/etc/telegraf/telegraf_template.conf"
 CONF_FILE="$WORKING_DIRECTORY/etc/telegraf/telegraf.conf"
 
+# Set the service name
+SERVICE_NAME=telegraf
+
+# Set the description of the service
+SERVICE_DESCRIPTION="telegraf agent"
+
 # Set the new hostname
 NEW_HOSTNAME=$(hostname)
+
+if systemctl is-active --quiet $SERVICE_NAME ; then
+  echo "$SERVICE_NAME.service is running..."
+  sudo systemctl status $SERVICE_NAME --no-pager
+  exit 1
+else
+  echo "$SERVICE_NAME.service is not running..."
+fi
 
 # Check if the template file exists
 if [ ! -f "$TEMPLATE_FILE" ]; then
@@ -35,12 +49,6 @@ sed "s/P_Hostname/$NEW_HOSTNAME/g" "$TEMPLATE_FILE" > "$CONF_FILE"
 # Display a message indicating success
 echo "Created $CONF_FILE from $TEMPLATE_FILE"
 
-
-# Set the service name
-SERVICE_NAME=telegraf
-
-# Set the description of the service
-SERVICE_DESCRIPTION="telegraf agent"
 
 # Create the service file
 sudo tee /etc/systemd/system/$SERVICE_NAME.service <<EOF
@@ -63,3 +71,5 @@ sudo systemctl daemon-reload
 # Start the service and enable it to run at boot time
 sudo systemctl start $SERVICE_NAME
 sudo systemctl enable $SERVICE_NAME
+
+sudo systemctl status $SERVICE_NAME --no-pager
