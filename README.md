@@ -9,7 +9,7 @@ Prerequsites: Download telegraf linux binary x46 for installation and place the 
     > /home/user/telegraf/var/..
     > telegraf_start.sh
     > telegraf_stop.sh
-    > script.sh
+    > script.sh  #to be used for deployment alongside jenkins
 
 Place the template.conf file in /etc/telegraf/..
 
