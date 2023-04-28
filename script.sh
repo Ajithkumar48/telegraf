@@ -19,16 +19,16 @@ echo "------------------------------------------------------------------------"
 echo ""
 
 # Checking status of telegraf.service on current server
-if ssh -i /home/vagrant/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl is-active telegraf>/dev/null 2>&1"; then
+if ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl is-active telegraf>/dev/null 2>&1"; then
   echo "The telegraf service is already running on ${SERVER}, skipping this server..."
 else
   echo "Copying files to ${SERVER}..."
   echo ""
-  ssh -i /home/vagrant/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "mkdir -p ${DEST_DIR}" > /dev/null
-  scp -i /home/vagrant/.ssh/id_rsa -o StrictHostKeyChecking=no -P 22 -r "${SOURCE_DIR}"* "${SSH_USER}@${SERVER}:${DEST_DIR}"
-  ssh -i /home/vagrant/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo chmod -R 777 ${DEST_DIR} && cd ${DEST_DIR} && ./telegraf_start.sh" > /dev/null
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "mkdir -p ${DEST_DIR}" > /dev/null
+  scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -P 22 -r "${SOURCE_DIR}"* "${SSH_USER}@${SERVER}:${DEST_DIR}"
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo chmod -R 777 ${DEST_DIR} && cd ${DEST_DIR} && ./telegraf_start.sh" > /dev/null
 fi
 
 echo ""
-echo "[Status]" && ssh -i /home/vagrant/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl status telegraf | grep -E 'Active:|Loaded:|Main PID:|CGroup:'"
+echo "[Status]" && ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SERVER}" "sudo systemctl status telegraf | grep -E 'Active:|Loaded:|Main PID:|CGroup:'"
 echo ""
